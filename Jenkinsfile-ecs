@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+        environment {
+        
+        registry = "242692877063.dkr.ecr.us-east-1.amazonaws.com/sample-app"
+    }
+    stages {
+
+        stage ('Gitcheckout') {
+            steps {
+            checkout([$class: 'GitSCM', branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[url: 'https://github.com/adeelakhtar89/sample-app.git']]])
+            }
+        }
+       
+        stage ('Build docker image') {
+            steps {
+                script {
+                dockerImage = docker.build registry 
+                
+                }
+            }
+        }
+       
+        stage ('Docker push') {
+            steps {
+                script {
+                     sh 'aws ecr get-login-password --region us-east-1 | docker login -u AWS --password-stdin 242692877063.dkr.ecr.us-east-1.amazonaws.com'
+					 sh 'docker push 242692877063.dkr.ecr.us-east-1.amazonaws.com/sample-app'
+					 
+					 
+            }
+       
+        }   
+	}			 
+}
+
+}
+
+
+
