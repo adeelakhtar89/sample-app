@@ -1,8 +1,12 @@
+
 pipeline {
     agent any
         environment {
         
         registry = "242692877063.dkr.ecr.us-east-1.amazonaws.com/sample-app"
+        AWS_ECR_REGION = 'us-east-1'
+        AWS_ECS_SERVICE = 'sample-app-service'
+        AWS_ECS_CLUSTER = 'sample-app-cluster'
     }
     stages {
 
@@ -31,10 +35,22 @@ pipeline {
             }
        
         }   
-	}			 
-}
+	}
+	     stage ('Deploy in ECS') {
+            steps {
+                script {
+                    
+                    sh 'aws ecs update-service --cluster sample-app-cluster --service sample-app-service --task-definition=sample-app-task-definition --force-new-deployment --region us-east-1' 
+                    //sh'aws ecs update-service --cluster sample-app-cluster --service sample-app-service --force-new-deployment --region us-east-1'
+                      
+
+                }
+            }
+        }
 
 }
-
+        
+       
+}
 
 
